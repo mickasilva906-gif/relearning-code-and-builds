@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Life Quest",
+  "version": "1.0.0",
+  "identifier": "com.lifequest.desktop",
+  "build": {
+    "beforeDevCommand": "npm run desktop:assets",
+    "beforeBuildCommand": "npm run desktop:assets",
+    "frontendDist": "../build/life-quest"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Life Quest",
+        "width": 1280,
+        "height": 850,
+        "minWidth": 360,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "category": "Lifestyle",
+    "shortDescription": "A personal quest and life tracker",
+    "longDescription": "Track skills, tasks, household routines, and personal finances."
+  }
+}

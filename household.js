@@ -12,8 +12,13 @@ const dailyCheck = document.querySelector("#daily-clean-check");
 const dailyName = document.querySelector("#daily-clean-name");
 const dailyDate = document.querySelector("#household-date");
 const laundryCheck = document.querySelector("#laundry-check");
+const carCheck = document.querySelector("#car-check");
 const laundryWeek = document.querySelector("#household-week");
 const rotationList = document.querySelector("#rotation-list");
+const shoppingForm = document.querySelector("#shopping-form");
+const shoppingName = document.querySelector("#shopping-name");
+const shoppingList = document.querySelector("#shopping-list");
+const shoppingCount = document.querySelector("#shopping-count");
 const storageMessage = document.querySelector("#household-storage-message");
 let householdStorageBlocked = false;
 
@@ -56,16 +61,19 @@ function saveHousehold() {
 function loadHousehold() {
     try {
         const saved = JSON.parse(localStorage.getItem(householdStorageKey) || "null");
-        if (saved === null) return { startDate: localDate(), completedDays: [], laundryWeeks: [] };
+        if (saved === null) return { startDate: localDate(), completedDays: [], laundryWeeks: [], carWeeks: [], shoppingItems: [] };
         if (saved && /^\d{4}-\d{2}-\d{2}$/.test(saved.startDate) &&
-            Array.isArray(saved.completedDays) && Array.isArray(saved.laundryWeeks)) {
-            return saved;
+            Array.isArray(saved.completedDays) && Array.isArray(saved.laundryWeeks) &&
+            (saved.carWeeks === undefined || Array.isArray(saved.carWeeks)) &&
+            (saved.shoppingItems === undefined || (Array.isArray(saved.shoppingItems) &&
+                saved.shoppingItems.every(item => item && typeof item.name === "string" && typeof item.completed === "boolean")))) {
+            return { ...saved, carWeeks: saved.carWeeks || [], shoppingItems: saved.shoppingItems || [] };
         }
     } catch (error) {
     }
     householdStorageBlocked = true;
     storageMessage.hidden = false;
-    return { startDate: localDate(), completedDays: [], laundryWeeks: [] };
+    return { startDate: localDate(), completedDays: [], laundryWeeks: [], carWeeks: [], shoppingItems: [] };
 }
 
 let household = loadHousehold();
@@ -89,6 +97,7 @@ function render() {
     dailyCheck.checked = household.completedDays.includes(displayedDate);
     laundryWeek.textContent = displayedWeek;
     laundryCheck.checked = household.laundryWeeks.includes(displayedWeek);
+    carCheck.checked = household.carWeeks.includes(displayedWeek);
 
     rotationList.replaceChildren();
     for (let offset = 1; offset < cleaningTasks.length; offset += 1) {
@@ -104,6 +113,51 @@ function render() {
         item.append(task, date);
         rotationList.append(item);
     }
+}
+
+function renderShoppingList() {
+    shoppingList.replaceChildren();
+    const remaining = household.shoppingItems.filter(item => !item.completed).length;
+    shoppingCount.textContent = `${remaining} TO GET`;
+    if (household.shoppingItems.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty-state";
+        empty.textContent = "Your shopping list is empty.";
+        shoppingList.append(empty);
+        return;
+    }
+
+    household.shoppingItems.forEach(item => {
+        const row = document.createElement("li");
+        row.className = "task-item";
+        const label = document.createElement("label");
+        label.className = "task-label";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = item.completed;
+        checkbox.addEventListener("change", () => {
+            item.completed = checkbox.checked;
+            saveHousehold();
+            shoppingCount.textContent = `${household.shoppingItems.filter(entry => !entry.completed).length} TO GET`;
+        });
+        const name = document.createElement("span");
+        name.className = "task-title";
+        name.textContent = item.name;
+        label.append(checkbox, name);
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "button button-secondary";
+        remove.textContent = "Remove";
+        remove.setAttribute("aria-label", `Remove ${item.name}`);
+        remove.addEventListener("click", () => {
+            if (!window.confirm(`Remove ${item.name} from the shopping list?`)) return;
+            household.shoppingItems = household.shoppingItems.filter(entry => entry !== item);
+            saveHousehold();
+            renderShoppingList();
+        });
+        row.append(label, remove);
+        shoppingList.append(row);
+    });
 }
 
 dailyCheck.addEventListener("change", () => {
@@ -128,7 +182,30 @@ laundryCheck.addEventListener("change", () => {
     render();
 });
 
+carCheck.addEventListener("change", () => {
+    if (displayedWeek !== localWeek()) {
+        render();
+        return;
+    }
+    household.carWeeks = household.carWeeks.filter(week => week !== displayedWeek);
+    if (carCheck.checked) household.carWeeks.push(displayedWeek);
+    saveHousehold();
+    render();
+});
+
+shoppingForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const name = shoppingName.value.trim();
+    if (!name) return;
+    household.shoppingItems.push({ name, completed: false });
+    saveHousehold();
+    shoppingName.value = "";
+    renderShoppingList();
+    shoppingName.focus();
+});
+
 render();
+renderShoppingList();
 setInterval(render, 30000);
 document.addEventListener("visibilitychange", () => {
     if (!document.hidden) render();

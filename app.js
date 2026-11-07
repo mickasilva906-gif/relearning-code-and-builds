@@ -1,7 +1,33 @@
 const skills = ["Strength", "Mental", "Agility", "Logic", "Charisma"];
 const storageKey = "life-quest-tasks-v1";
 const eloStorageKey = "life-quest-chess-ratings-v1";
+const householdStorageKey = "life-quest-household-v1";
+const financeStorageKey = "life-quest-finance-v1";
+const playerLevelStorageKey = "life-quest-player-level-v1";
 const experiencePerLevel = 1000;
+const playerExperiencePerLevel = 10000;
+const weeklyQuests = [
+    { id: "upper-2", name: "Upper Focus", description: "Complete 2 upper-body workouts.", skill: "Strength", kind: "upper", target: 2 },
+    { id: "lower-2", name: "Lower Focus", description: "Complete 2 lower-body workouts.", skill: "Strength", kind: "lower", target: 2 },
+    { id: "strength-4", name: "Strength Circuit", description: "Complete 4 upper or lower workouts.", skill: "Strength", kind: "strength", target: 4 },
+    { id: "strength-tasks-3", name: "Strength Objectives", description: "Complete 3 Strength tasks.", skill: "Strength", kind: "tasks", target: 3 },
+    { id: "cardio-2", name: "Cardio Starter", description: "Complete 2 cardio workouts.", skill: "Agility", kind: "cardio", target: 2 },
+    { id: "cardio-4", name: "Cardio Circuit", description: "Complete 4 cardio workouts.", skill: "Agility", kind: "cardio", target: 4 },
+    { id: "agility-tasks-3", name: "Agility Objectives", description: "Complete 3 Agility tasks.", skill: "Agility", kind: "tasks", target: 3 },
+    { id: "workout-days-5", name: "Five-Day Movement", description: "Work out on 5 different days.", skill: "Agility", kind: "workout-days", target: 5 },
+    { id: "duolingo-3", name: "Language Warmup", description: "Complete Duolingo on 3 days.", skill: "Mental", kind: "duolingo", target: 3 },
+    { id: "duolingo-5", name: "Language Practice", description: "Complete Duolingo on 5 days.", skill: "Mental", kind: "duolingo", target: 5 },
+    { id: "duolingo-7", name: "Language Week", description: "Complete Duolingo on 7 days.", skill: "Mental", kind: "duolingo", target: 7 },
+    { id: "mental-tasks-3", name: "Mental Objectives", description: "Complete 3 Mental tasks.", skill: "Mental", kind: "tasks", target: 3 },
+    { id: "chess-3", name: "Opening Moves", description: "Play chess on 3 days.", skill: "Logic", kind: "chess", target: 3 },
+    { id: "chess-5", name: "Chess Practice", description: "Play chess on 5 days.", skill: "Logic", kind: "chess", target: 5 },
+    { id: "coursework-3", name: "Study Sessions", description: "Complete coursework on 3 days.", skill: "Logic", kind: "coursework", target: 3 },
+    { id: "course-1", name: "Course Finisher", description: "Complete a course.", skill: "Logic", kind: "course", target: 1 },
+    { id: "journal-3", name: "Three Reflections", description: "Save journal entries on 3 days.", skill: "Charisma", kind: "journal", target: 3 },
+    { id: "journal-5", name: "Reflection Week", description: "Save journal entries on 5 days.", skill: "Charisma", kind: "journal", target: 5 },
+    { id: "connection-2", name: "Thoughtful Week", description: "Check off flowers and a date with Soph.", skill: "Charisma", kind: "connection", target: 2 },
+    { id: "charisma-tasks-3", name: "Charisma Objectives", description: "Complete 3 Charisma tasks.", skill: "Charisma", kind: "tasks", target: 3 }
+];
 let tasks = [];
 let chessRatings = [];
 let defaultEloWeek = "";
@@ -10,6 +36,8 @@ let journalSavedText = "";
 let courseworkEditorDate = "";
 let courseworkSavedText = "";
 let previousSkillLevels = null;
+let previousPlayerLevel = null;
+let questAnnouncementWeek = "";
 
 const form = document.querySelector("#task-form");
 const taskName = document.querySelector("#task-name");
@@ -45,12 +73,22 @@ const journalStatus = document.querySelector("#journal-status");
 const journalHistory = document.querySelector("#journal-history");
 const skillTree = document.querySelector("#skill-tree");
 const totalExperience = document.querySelector("#total-xp");
+const playerLevelLabel = document.querySelector("#player-level");
+const playerProgress = document.querySelector("#player-progress");
+const playerProgressText = document.querySelector("#player-progress-text");
 const completedCount = document.querySelector("#completed-count");
 const openCount = document.querySelector("#open-count");
 const storageMessage = document.querySelector("#storage-message");
 const levelUpBanner = document.querySelector("#level-up-banner");
 const levelUpMessage = document.querySelector("#level-up-message");
 const levelUpDismiss = document.querySelector("#level-up-dismiss");
+const questVendor = document.querySelector("#quest-vendor");
+const questWeek = document.querySelector("#quest-week");
+const questStatus = document.querySelector("#quest-status");
+const scholarRank = document.querySelector("#scholar-rank");
+const scholarProgress = document.querySelector("#scholar-progress");
+const achievementList = document.querySelector("#achievement-list");
+const courseBadges = document.querySelector("#course-badges");
 
 function localDate(date = new Date()) {
     const year = date.getFullYear();
@@ -70,10 +108,88 @@ function localWeek(date = new Date()) {
 
 function taskExperience(task, today = localDate()) {
     const completed = Boolean(task.completedOn);
+    if (task.weeklyQuest) return completed ? 1000 : 0;
     if (task.courseCompletion) return completed ? 500 : 0;
     if (typeof task.courseworkText === "string") return completed ? 100 : 0;
     const missed = task.completedOn ? task.completedOn > task.dueOn : today > task.dueOn;
     return (completed ? 100 : 0) - (missed ? 100 : 0);
+}
+
+function additionalExperience() {
+    let total = 0;
+    try {
+        const household = JSON.parse(localStorage.getItem(householdStorageKey) || "null");
+        if (household && Array.isArray(household.completedDays) && Array.isArray(household.laundryWeeks)) {
+            const dates = new Set(household.completedDays.filter(day => typeof day === "string" && /^\d{4}-\d{2}-\d{2}$/.test(day)));
+            const laundry = new Set(household.laundryWeeks.filter(week => typeof week === "string" && /^\d{4}-W\d{2}$/.test(week)));
+            const car = new Set((Array.isArray(household.carWeeks) ? household.carWeeks : []).filter(week => typeof week === "string" && /^\d{4}-W\d{2}$/.test(week)));
+            total += (dates.size + laundry.size + car.size) * 100;
+        }
+    } catch (error) {
+        storageMessage.hidden = false;
+    }
+    try {
+        const finance = JSON.parse(localStorage.getItem(financeStorageKey) || "null");
+        if (finance && Array.isArray(finance.debts)) {
+            total += finance.debts.filter(debt => debt && (debt.payoffAwarded === true ||
+                (debt.payoffAwarded === undefined && debt.balance === 0 && debt.starting > 0))).length * 100;
+        }
+    } catch (error) {
+        storageMessage.hidden = false;
+    }
+    return total;
+}
+
+function weekForDate(date) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "";
+    const [year, month, day] = date.split("-").map(Number);
+    const local = new Date(year, month - 1, day);
+    return localDate(local) === date ? localWeek(local) : "";
+}
+
+function weeklyOffers(date = new Date()) {
+    const ordinal = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+    const monday = ordinal - ((date.getDay() + 6) % 7);
+    const weekIndex = Math.floor((monday - 4) / 7);
+    const start = ((weekIndex * 3) % weeklyQuests.length + weeklyQuests.length) % weeklyQuests.length;
+    return Array.from({ length: 3 }, (unused, index) => weeklyQuests[(start + index) % weeklyQuests.length]);
+}
+
+function isRegularTask(task) {
+    return !task.workoutType && !task.duolingo && !task.chess && !task.charismaActivity &&
+        !task.courseCompletion && !task.weeklyQuest && typeof task.journalText !== "string" && typeof task.courseworkText !== "string";
+}
+
+function questProgress(quest, week) {
+    const completed = tasks.filter(task => task.completedOn && !task.weeklyQuest && weekForDate(task.completedOn) === week);
+    if (quest.kind === "upper") return completed.filter(task => task.workoutType === "Upper").length;
+    if (quest.kind === "lower") return completed.filter(task => task.workoutType === "Lower").length;
+    if (quest.kind === "strength") return completed.filter(task => ["Upper", "Lower"].includes(task.workoutType)).length;
+    if (quest.kind === "cardio") return completed.filter(task => task.workoutType === "Cardio").length;
+    if (quest.kind === "workout-days") return new Set(completed.filter(task => task.workoutType).map(task => task.completedOn)).size;
+    if (quest.kind === "duolingo") return completed.filter(task => task.duolingo).length;
+    if (quest.kind === "chess") return completed.filter(task => task.chess).length;
+    if (quest.kind === "coursework") return completed.filter(task => typeof task.courseworkText === "string").length;
+    if (quest.kind === "course") return completed.filter(task => task.courseCompletion).length;
+    if (quest.kind === "journal") return completed.filter(task => typeof task.journalText === "string").length;
+    if (quest.kind === "connection") return new Set(completed.filter(task => ["flowers", "date"].includes(task.charismaActivity)).map(task => task.charismaActivity)).size;
+    if (quest.kind === "tasks") return completed.filter(task => isRegularTask(task) && task.skill === quest.skill).length;
+    return 0;
+}
+
+function completeWeeklyQuest(today) {
+    const week = weekForDate(today);
+    const selected = tasks.find(task => task.weeklyQuest && task.questWeek === week);
+    const quest = selected && weeklyQuests.find(item => item.id === selected.questId);
+    if (quest && !selected.completedOn && questProgress(quest, week) >= quest.target) {
+        selected.completedOn = today;
+        if (!saveTasks()) {
+            selected.completedOn = null;
+        } else {
+            questAnnouncementWeek = week;
+            questStatus.textContent = `${quest.name} complete. +1000 ${quest.skill} XP!`;
+        }
+    }
 }
 
 function saveTasks() {
@@ -93,6 +209,17 @@ function loadTasks() {
             tasks = saved.filter(task => task && typeof task.name === "string" &&
                 skills.includes(task.skill) && typeof task.dueOn === "string" &&
                 (task.completedOn === null || typeof task.completedOn === "string"));
+        }
+    } catch (error) {
+        storageMessage.hidden = false;
+    }
+}
+
+function loadPreviousPlayerLevel() {
+    try {
+        const saved = localStorage.getItem(playerLevelStorageKey);
+        if (saved !== null && /^\d+$/.test(saved) && Number.isSafeInteger(Number(saved)) && Number(saved) > 0) {
+            previousPlayerLevel = Number(saved);
         }
     } catch (error) {
         storageMessage.hidden = false;
@@ -188,10 +315,7 @@ function renderSkills(today) {
         skillTree.append(branch);
     });
     previousSkillLevels = currentLevels;
-    if (levelUps.length > 0) {
-        levelUpMessage.textContent = levelUps.join(" ");
-        levelUpBanner.hidden = false;
-    }
+    return levelUps;
 }
 
 function renderTasks(today, list, entries, emptyMessage) {
@@ -339,6 +463,138 @@ function renderCourseCompletions() {
     });
 }
 
+function renderQuestVendor() {
+    const week = localWeek();
+    const selected = tasks.find(task => task.weeklyQuest && task.questWeek === week);
+    if (questAnnouncementWeek !== week) questStatus.textContent = "";
+    questWeek.textContent = selected
+        ? `${week} / ${selected.completedOn ? "COMPLETED" : "ACTIVE"}: ${selected.name}`
+        : `${week} / NO QUEST SELECTED`;
+    questVendor.replaceChildren();
+    weeklyOffers().forEach(quest => {
+        const card = document.createElement("article");
+        card.className = "quest-card";
+        const active = selected && selected.questId === quest.id;
+        if (active) card.classList.add("is-selected");
+        const type = document.createElement("p");
+        type.className = "quest-type";
+        type.textContent = `${quest.skill} / +1000 XP`;
+        const title = document.createElement("h3");
+        title.textContent = quest.name;
+        const description = document.createElement("p");
+        description.className = "quest-description";
+        description.textContent = quest.description;
+        const count = Math.min(questProgress(quest, week), quest.target);
+        const progress = document.createElement("progress");
+        progress.max = quest.target;
+        progress.value = count;
+        progress.setAttribute("aria-label", `${quest.name} progress`);
+        const progressLabel = document.createElement("p");
+        progressLabel.className = "quest-progress";
+        progressLabel.textContent = `${count} / ${quest.target}`;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "button button-secondary quest-button";
+        button.disabled = Boolean(active || (selected && selected.completedOn));
+        button.textContent = active ? (selected.completedOn ? "COMPLETED" : "SELECTED") :
+            (selected && selected.completedOn ? "QUEST LOCKED" : (selected ? "SWITCH QUEST" : "SELECT QUEST"));
+        button.setAttribute("aria-label", `${button.textContent}: ${quest.name}`);
+        button.addEventListener("click", () => {
+            if (localWeek() !== week || (selected && selected.completedOn)) {
+                render();
+                return;
+            }
+            const previousTasks = tasks;
+            tasks = tasks.filter(task => !(task.weeklyQuest && task.questWeek === week));
+            tasks.push({ name: quest.name, skill: quest.skill, weeklyQuest: true, questId: quest.id,
+                questWeek: week, dueOn: localDate(), completedOn: null });
+            questAnnouncementWeek = week;
+            if (!saveTasks()) {
+                tasks = previousTasks;
+                questStatus.textContent = "Quest selection could not be saved in this browser.";
+            } else {
+                questStatus.textContent = `${quest.name} selected.`;
+            }
+            render();
+        });
+        card.append(type, title, description, progress, progressLabel, button);
+        questVendor.append(card);
+    });
+}
+
+function renderAchievements() {
+    const completed = tasks.filter(task => task.completedOn);
+    const courses = completed.filter(task => task.courseCompletion);
+    const ranks = [
+        { count: 0, name: "Learner" }, { count: 1, name: "Apprentice" },
+        { count: 3, name: "Scholar" }, { count: 5, name: "Researcher" },
+        { count: 10, name: "Master Scholar" }, { count: 20, name: "Luminary" }
+    ];
+    const rank = [...ranks].reverse().find(item => courses.length >= item.count);
+    const next = ranks.find(item => item.count > courses.length);
+    scholarRank.textContent = `SCHOLARLY RANK / ${rank.name.toUpperCase()}`;
+    scholarProgress.textContent = next
+        ? `${courses.length} COURSES / ${next.count} FOR ${next.name.toUpperCase()}`
+        : `${courses.length} COURSES / HIGHEST RANK`;
+
+    const achievements = [
+        { name: "First Objective", description: "Complete a task.", count: completed.filter(isRegularTask).length, target: 1 },
+        { name: "Strength Builder", description: "Complete 10 upper or lower workouts.", count: completed.filter(task => ["Upper", "Lower"].includes(task.workoutType)).length, target: 10 },
+        { name: "On the Move", description: "Complete 10 cardio workouts.", count: completed.filter(task => task.workoutType === "Cardio").length, target: 10 },
+        { name: "Language Explorer", description: "Complete 7 Duolingo days.", count: completed.filter(task => task.duolingo).length, target: 7 },
+        { name: "Chess Challenger", description: "Play chess on 10 days.", count: completed.filter(task => task.chess).length, target: 10 },
+        { name: "Study Habit", description: "Complete coursework on 7 days.", count: completed.filter(task => typeof task.courseworkText === "string").length, target: 7 },
+        { name: "Reflective Mind", description: "Save 7 journal entries.", count: completed.filter(task => typeof task.journalText === "string").length, target: 7 },
+        { name: "Thoughtful Partner", description: "Complete 10 weekly connection check-ins.", count: completed.filter(task => task.charismaActivity).length, target: 10 },
+        { name: "Quest Initiate", description: "Complete a weekly quest.", count: completed.filter(task => task.weeklyQuest).length, target: 1 }
+    ];
+    achievementList.replaceChildren();
+    achievements.forEach(achievement => {
+        const card = document.createElement("article");
+        card.className = "achievement-item";
+        const earned = achievement.count >= achievement.target;
+        if (earned) card.classList.add("is-earned");
+        const status = document.createElement("p");
+        status.className = "achievement-status";
+        status.textContent = earned ? "UNLOCKED" : "LOCKED";
+        const title = document.createElement("h3");
+        title.textContent = achievement.name;
+        const description = document.createElement("p");
+        description.className = "quest-description";
+        description.textContent = achievement.description;
+        const progress = document.createElement("p");
+        progress.className = "quest-progress";
+        progress.textContent = `${Math.min(achievement.count, achievement.target)} / ${achievement.target}`;
+        card.append(status, title, description, progress);
+        achievementList.append(card);
+    });
+
+    courseBadges.replaceChildren();
+    if (courses.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty-state";
+        empty.textContent = "No course badges yet.";
+        courseBadges.append(empty);
+    } else {
+        [...courses].reverse().forEach(course => {
+            const item = document.createElement("li");
+            item.className = "course-badge";
+            const badgeLabel = document.createElement("span");
+            badgeLabel.className = "achievement-status";
+            badgeLabel.textContent = "COURSE COMPLETE";
+            const title = document.createElement("span");
+            title.className = "task-title";
+            title.textContent = course.name;
+            const date = document.createElement("time");
+            date.className = "task-date";
+            date.dateTime = course.completedOn;
+            date.textContent = course.completedOn;
+            item.append(badgeLabel, title, date);
+            courseBadges.append(item);
+        });
+    }
+}
+
 function renderJournal(today) {
     const entries = tasks.filter(task => typeof task.journalText === "string");
     if (!journalEditorDate || (journalEditorDate !== today && journalEntry.value === journalSavedText)) {
@@ -375,11 +631,17 @@ function renderJournal(today) {
 
 function render() {
     const today = localDate();
-    const experience = tasks.reduce((total, task) => total + taskExperience(task, today), 0);
-    const regularTasks = tasks.filter(task => !task.workoutType && !task.duolingo && !task.chess &&
-        !task.charismaActivity && !task.courseCompletion && typeof task.journalText !== "string" && typeof task.courseworkText !== "string");
+    completeWeeklyQuest(today);
+    const experience = tasks.reduce((total, task) => total + taskExperience(task, today), 0) + additionalExperience();
+    const nonnegativeExperience = Math.max(0, experience);
+    const level = Math.floor(nonnegativeExperience / playerExperiencePerLevel) + 1;
+    const progress = nonnegativeExperience % playerExperiencePerLevel;
+    const regularTasks = tasks.filter(isRegularTask);
     const workouts = tasks.filter(task => task.workoutType && (!task.dailyWorkout || task.dueOn !== today));
     totalExperience.textContent = `${experience} XP`;
+    playerLevelLabel.textContent = `PLAYER LEVEL ${String(level).padStart(2, "0")}`;
+    playerProgress.value = progress;
+    playerProgressText.textContent = `${progress} / ${playerExperiencePerLevel} XP TO NEXT LEVEL`;
     completedCount.textContent = regularTasks.filter(task => task.completedOn).length;
     openCount.textContent = regularTasks.filter(task => !task.completedOn && task.dueOn === today).length;
     duolingoCheck.checked = tasks.some(task => task.duolingo && task.dueOn === today && task.completedOn);
@@ -396,7 +658,22 @@ function render() {
     workoutChecks.forEach(checkbox => {
         checkbox.checked = tasks.some(task => task.dailyWorkout && task.workoutType === checkbox.value && task.dueOn === today);
     });
-    renderSkills(today);
+    const levelUps = renderSkills(today);
+    if (previousPlayerLevel !== null && level > previousPlayerLevel) levelUps.push(`Player reached level ${level}!`);
+    if (previousPlayerLevel !== level) {
+        try {
+            localStorage.setItem(playerLevelStorageKey, String(level));
+        } catch (error) {
+            storageMessage.hidden = false;
+        }
+    }
+    previousPlayerLevel = level;
+    if (levelUps.length > 0) {
+        levelUpMessage.textContent = levelUps.join(" ");
+        levelUpBanner.hidden = false;
+    }
+    renderQuestVendor();
+    renderAchievements();
     renderTasks(today, taskList, regularTasks, "No tasks yet. Add your first objective above.");
     renderTasks(today, workoutList, workouts, "No previous workouts yet.");
     renderCoursework(today);
@@ -570,9 +847,14 @@ journalForm.addEventListener("submit", event => {
 });
 
 loadTasks();
+loadPreviousPlayerLevel();
 loadChessRatings();
 render();
 setInterval(render, 30000);
+window.addEventListener("storage", event => {
+    if (event.key === storageKey) loadTasks();
+    if ([storageKey, householdStorageKey, financeStorageKey].includes(event.key)) render();
+});
 document.addEventListener("visibilitychange", () => {
     if (!document.hidden) render();
 });

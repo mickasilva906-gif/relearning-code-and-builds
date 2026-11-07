@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101114">
+    <title>Finance | Life Quest</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="finance.js?v=6" defer></script>
+</head>
+<body>
+    <aside id="money-banner" class="level-up-banner" role="status" aria-live="polite" hidden>
+        <img class="level-up-image" src="level-up.gif" width="498" height="333" alt="Cats celebrating at a DJ booth">
+        <div class="level-up-content">
+            <p class="eyebrow">MONEY MILESTONE</p>
+            <h2>YOU DID IT!</h2>
+            <p id="money-message"></p>
+            <button id="money-dismiss" class="button button-secondary" type="button">DISMISS</button>
+        </div>
+    </aside>
+    <header class="topbar">
+        <a class="wordmark" href="index.html"><span class="brand-mark" aria-hidden="true">+</span> LIFE<span>QUEST</span></a>
+        <nav class="topnav" aria-label="Main navigation">
+            <a href="index.html">Dashboard</a>
+            <a href="household.html">Household</a>
+            <a href="#balances">Balances</a>
+            <a href="#debts">Debts</a>
+            <a href="#investments">Investments</a>
+            <a href="#expenses">Expenses</a>
+            <a href="#subscriptions">Subscriptions</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">PERSONAL FINANCE / USD</p>
+                <h1>FINANCE <span class="heading-accent">_</span></h1>
+            </div>
+            <p class="finance-privacy">Stored in this browser, unencrypted. No accounts connected.</p>
+        </header>
+        <p id="finance-status" class="finance-status" role="alert"></p>
+
+        <div class="finance-summary" aria-label="Financial overview">
+            <div><span>CHECKING</span><strong id="checking-total">--</strong></div>
+            <div><span>SAVINGS</span><strong id="savings-total">--</strong></div>
+            <div><span>TOTAL CASH</span><strong id="cash-total">--</strong></div>
+            <div><span>CASH MINUS DEBT</span><strong id="net-position">--</strong></div>
+        </div>
+
+        <section class="finance-payoff" aria-labelledby="payoff-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">DEBT / PAYOFF</p>
+                    <h2 id="payoff-title">THE ROAD TO ZERO <span class="heading-accent">_</span></h2>
+                </div>
+                <div class="finance-debt-total"><span>REMAINING</span><strong id="debt-total">$0.00</strong></div>
+            </div>
+            <progress id="payoff-progress" max="100" value="0" aria-label="Debt payoff progress"></progress>
+            <p id="payoff-label" class="finance-caption"></p>
+        </section>
+
+        <div class="finance-grid">
+            <section id="balances" class="task-panel" aria-labelledby="balances-title">
+                <div class="section-heading">
+                    <div><p class="eyebrow">ACCOUNT SNAPSHOT</p><h2 id="balances-title">BALANCES <span class="heading-accent">_</span></h2></div>
+                </div>
+                <form id="balance-form" class="finance-entry-form">
+                    <div class="field"><label for="checking-input">CHECKING</label><input id="checking-input" inputmode="decimal" type="text" placeholder="0.00" required></div>
+                    <div class="field"><label for="savings-input">SAVINGS</label><input id="savings-input" inputmode="decimal" type="text" placeholder="0.00" required></div>
+                    <button class="add-button" type="submit">SAVE BALANCES</button>
+                </form>
+            </section>
+
+            <section id="debts" class="task-panel" aria-labelledby="debts-title">
+                <div class="section-heading">
+                    <div><p class="eyebrow">CREDIT / STUDENT LOANS</p><h2 id="debts-title">DEBT TRACKER <span class="heading-accent">_</span></h2></div>
+                </div>
+                <div class="finance-debt-types">
+                    <span>CREDIT CARDS <strong id="credit-total">$0.00</strong></span>
+                    <span>STUDENT LOANS <strong id="student-total">$0.00</strong></span>
+                </div>
+                <form id="debt-form" class="finance-entry-form">
+                    <div class="field finance-field-wide"><label for="debt-name">DEBT NAME</label><input id="debt-name" type="text" maxlength="120" placeholder="Account name" required></div>
+                    <div class="field"><label for="debt-type">TYPE</label><select id="debt-type"><option>Credit card</option><option>Student loan</option></select></div>
+                    <div class="field"><label for="debt-amount">STARTING BALANCE</label><input id="debt-amount" inputmode="decimal" type="text" placeholder="0.00" required></div>
+                    <button class="add-button" type="submit"><span aria-hidden="true">+</span> ADD DEBT</button>
+                </form>
+                <ul id="debt-list" class="task-list shopping-list" aria-label="Tracked debts"></ul>
+            </section>
+        </div>
+
+        <section id="investments" class="tasks-section" aria-labelledby="investments-title">
+            <div class="section-heading">
+                <div><p class="eyebrow">MARKETS / USD</p><h2 id="investments-title">INVESTMENTS <span class="heading-accent">_</span></h2></div>
+                <div class="finance-debt-total"><span>TRACKED VALUE</span><strong id="investment-total">--</strong></div>
+            </div>
+            <div class="task-panel">
+                <form id="investment-form" class="finance-entry-form">
+                    <div class="field"><label for="investment-symbol">US TICKER</label><input id="investment-symbol" type="text" maxlength="8" placeholder="AAPL" autocomplete="off" required></div>
+                    <div class="field"><label for="investment-shares">SHARES</label><input id="investment-shares" inputmode="decimal" type="text" placeholder="0.000000" required></div>
+                    <div class="field"><label for="investment-cost">TOTAL COST (OPTIONAL)</label><input id="investment-cost" inputmode="decimal" type="text" placeholder="0.00"></div>
+                    <button class="add-button" type="submit"><span aria-hidden="true">+</span> ADD INVESTMENT</button>
+                </form>
+                <h3 class="journal-history-title">WEEKLY MARKET DATA</h3>
+                <form id="market-form" class="task-form">
+                    <div class="field field-name"><label for="market-key">ALPHA VANTAGE API KEY</label><input id="market-key" type="password" autocomplete="off" placeholder="API key"></div>
+                    <button id="market-refresh" class="add-button" type="submit">REFRESH PRICES</button>
+                </form>
+                <p class="finance-caption">US-listed USD holdings. Weekly closes from Alpha Vantage may be delayed. The key stays in this open page; refreshing sends tickers to the provider. <a href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener noreferrer">Get an API key</a>.</p>
+                <p class="finance-caption">Price changes and estimated gains exclude dividends, fees, and split adjustments.</p>
+                <p id="investment-status" class="journal-status" role="status" aria-live="polite"></p>
+                <ul id="investment-list" class="task-list shopping-list" aria-label="Investment holdings"></ul>
+            </div>
+        </section>
+
+        <section id="expenses" class="tasks-section" aria-labelledby="expenses-title">
+            <div class="section-heading">
+                <div><p class="eyebrow">SPENDING / LOG</p><h2 id="expenses-title">EXPENSES <span class="heading-accent">_</span></h2></div>
+                <div class="finance-debt-total"><span>TOTAL RECORDED</span><strong id="expense-total">$0.00</strong></div>
+            </div>
+            <div class="task-panel">
+                <form id="expense-form" class="task-form">
+                    <div class="field field-name"><label for="expense-name">EXPENSE</label><input id="expense-name" type="text" maxlength="120" placeholder="Expense name" required></div>
+                    <div class="field field-skill"><label for="expense-amount">AMOUNT</label><input id="expense-amount" inputmode="decimal" type="text" placeholder="0.00" required></div>
+                    <div class="field field-skill"><label for="expense-date">DATE</label><input id="expense-date" type="date" required></div>
+                    <button class="add-button" type="submit"><span aria-hidden="true">+</span> ADD EXPENSE</button>
+                </form>
+                <ul id="expense-list" class="task-list shopping-list" aria-label="Recorded expenses"></ul>
+            </div>
+        </section>
+        <section id="subscriptions" class="tasks-section" aria-labelledby="subscriptions-title">
+            <div class="section-heading">
+                <div><p class="eyebrow">RECURRING / SERVICES</p><h2 id="subscriptions-title">SUBSCRIPTIONS <span class="heading-accent">_</span></h2></div>
+                <div class="finance-debt-total"><span>ESTIMATED MONTHLY</span><strong id="subscription-total">$0.00</strong></div>
+            </div>
+            <div class="task-panel">
+                <form id="subscription-form" class="task-form">
+                    <div class="field field-name"><label for="subscription-name">SUBSCRIPTION</label><input id="subscription-name" type="text" maxlength="120" placeholder="Service name" required></div>
+                    <div class="field field-skill"><label for="subscription-amount">AMOUNT</label><input id="subscription-amount" inputmode="decimal" type="text" placeholder="0.00" required></div>
+                    <div class="field field-skill"><label for="subscription-frequency">FREQUENCY</label><select id="subscription-frequency"><option>Monthly</option><option>Weekly</option><option>Yearly</option></select></div>
+                    <button class="add-button" type="submit"><span aria-hidden="true">+</span> ADD SUBSCRIPTION</button>
+                </form>
+                <ul id="subscription-list" class="task-list shopping-list" aria-label="Subscriptions"></ul>
+            </div>
+        </section>
+        <footer class="footer"><span>LIFEQUEST / FINANCE</span><a href="index.html">BACK TO DASHBOARD</a></footer>
+    </main>
+</body>
+</html>

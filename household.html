@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#101114">
     <title>Household | Life Quest</title>
     <link rel="stylesheet" href="style.css">
-    <script src="household.js" defer></script>
+    <script src="household.js?v=2" defer></script>
 </head>
 <body>
     <header class="topbar">
@@ -14,8 +14,10 @@
         <nav class="topnav" aria-label="Main navigation">
             <a href="index.html">Dashboard</a>
             <a href="#today">Today's task</a>
-            <a href="#laundry">Laundry</a>
+            <a href="#laundry">Weekly</a>
             <a href="#rotation">Rotation</a>
+            <a href="#shopping">Shopping</a>
+            <a href="finance.html">Finance</a>
         </nav>
     </header>
 
@@ -54,6 +56,12 @@
                         <span class="task-title">Do laundry</span>
                     </label>
                 </div>
+                <div class="task-item">
+                    <label class="task-label" for="car-check">
+                        <input id="car-check" type="checkbox">
+                        <span class="task-title">Clean car</span>
+                    </label>
+                </div>
             </section>
         </div>
 
@@ -65,6 +73,25 @@
                 </div>
             </div>
             <ul id="rotation-list" class="task-list" aria-label="Upcoming cleaning tasks"></ul>
+        </section>
+        <section id="shopping" class="tasks-section" aria-labelledby="shopping-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">HOUSEHOLD / SHOPPING</p>
+                    <h2 id="shopping-title">SHOPPING LIST <span class="heading-accent">_</span></h2>
+                </div>
+                <span id="shopping-count" class="section-note"></span>
+            </div>
+            <div class="task-panel">
+                <form id="shopping-form" class="task-form">
+                    <div class="field field-name">
+                        <label for="shopping-name">ITEM</label>
+                        <input id="shopping-name" name="name" type="text" placeholder="Add an item" maxlength="120" required>
+                    </div>
+                    <button class="add-button" type="submit"><span aria-hidden="true">+</span> ADD ITEM</button>
+                </form>
+                <ul id="shopping-list" class="task-list shopping-list" aria-label="Shopping items"></ul>
+            </div>
         </section>
         <footer class="footer"><span>LIFEQUEST / HOUSEHOLD</span><a href="index.html">BACK TO DASHBOARD</a></footer>
     </main>

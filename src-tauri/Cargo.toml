@@ -1,0 +1,12 @@
+[package]
+name = "life-quest"
+version = "1.0.0"
+description = "A personal quest and life tracker"
+authors = ["Life Quest"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
