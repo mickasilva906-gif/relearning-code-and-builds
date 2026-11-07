@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101114">
+    <title>Household | Life Quest</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="household.js" defer></script>
+</head>
+<body>
+    <header class="topbar">
+        <a class="wordmark" href="index.html"><span class="brand-mark" aria-hidden="true">+</span> LIFE<span>QUEST</span></a>
+        <nav class="topnav" aria-label="Main navigation">
+            <a href="index.html">Dashboard</a>
+            <a href="#today">Today's task</a>
+            <a href="#laundry">Laundry</a>
+            <a href="#rotation">Rotation</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">HOUSEHOLD / ROUTINE</p>
+                <h1>HOUSEHOLD TASKS <span class="heading-accent">_</span></h1>
+            </div>
+        </header>
+
+        <p id="household-storage-message" class="storage-message" role="alert" hidden>Household progress could not be saved in this browser.</p>
+
+        <div class="dashboard-grid">
+            <section id="today" class="task-panel card-half" aria-labelledby="today-title">
+                <div class="section-heading">
+                    <h2 id="today-title">TODAY</h2>
+                    <time id="household-date" class="task-date"></time>
+                </div>
+                <div class="task-item">
+                    <label class="task-label" for="daily-clean-check">
+                        <input id="daily-clean-check" type="checkbox">
+                        <span id="daily-clean-name" class="task-title"></span>
+                    </label>
+                </div>
+            </section>
+
+            <section id="laundry" class="task-panel card-half" aria-labelledby="laundry-title">
+                <div class="section-heading">
+                    <h2 id="laundry-title">THIS WEEK</h2>
+                    <span id="household-week" class="task-date"></span>
+                </div>
+                <div class="task-item">
+                    <label class="task-label" for="laundry-check">
+                        <input id="laundry-check" type="checkbox">
+                        <span class="task-title">Do laundry</span>
+                    </label>
+                </div>
+            </section>
+        </div>
+
+        <section id="rotation" class="tasks-section" aria-labelledby="rotation-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">COMING UP</p>
+                    <h2 id="rotation-title">CLEANING ROTATION <span class="heading-accent">_</span></h2>
+                </div>
+            </div>
+            <ul id="rotation-list" class="task-list" aria-label="Upcoming cleaning tasks"></ul>
+        </section>
+        <footer class="footer"><span>LIFEQUEST / HOUSEHOLD</span><a href="index.html">BACK TO DASHBOARD</a></footer>
+    </main>
+</body>
+</html>

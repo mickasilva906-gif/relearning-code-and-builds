@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101114">
+    <title>Life Quest | Skill Tree</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <aside id="level-up-banner" class="level-up-banner" role="status" aria-live="polite" hidden>
+        <img class="level-up-image" src="level-up.gif" width="498" height="333" alt="Cats celebrating at a DJ booth">
+        <div class="level-up-content">
+            <p class="eyebrow">LEVEL UP</p>
+            <h2>YOU DID IT!</h2>
+            <p id="level-up-message"></p>
+            <button id="level-up-dismiss" class="button button-secondary" type="button">DISMISS</button>
+        </div>
+    </aside>
+    <header class="topbar">
+        <a class="wordmark" href="#dashboard"><span class="brand-mark" aria-hidden="true">+</span> LIFE<span>QUEST</span></a>
+        <nav class="topnav" aria-label="Main navigation">
+            <a href="#dashboard">Dashboard</a>
+            <a href="#skills">Skill tree</a>
+            <a href="#workouts">Workouts</a>
+            <a href="#mental">Mental</a>
+            <a href="#logic">Logic</a>
+            <a href="#charisma">Charisma</a>
+            <a href="#journal">Journal</a>
+            <a href="#tasks">Tasks</a>
+            <a href="household.html">Household</a>
+        </nav>
+        <span class="system-status"><span aria-hidden="true"></span> SYSTEM ONLINE</span>
+    </header>
+
+    <main class="main-content" id="dashboard">
+        <header class="dashboard-header">
+            <div>
+                <p class="eyebrow">PERSONAL PROGRESS SYSTEM <span>// 001</span></p>
+                <h1>YOUR LIFE.<br><span>YOUR BUILD.</span></h1>
+                <p class="header-subtitle">Track the work. Build your skills.</p>
+            </div>
+            <div class="xp-summary">
+                <span class="xp-label">TOTAL EXPERIENCE</span>
+                <strong id="total-xp">0 XP</strong>
+                <span class="xp-caption">YOUR PROGRESS, ALL IN ONE PLACE</span>
+            </div>
+        </header>
+
+        <section class="skills-section" id="skills" aria-labelledby="skills-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">01 / CHARACTER DEVELOPMENT</p>
+                    <h2 id="skills-title">SKILL TREE <span class="heading-accent">_</span></h2>
+                </div>
+                <span class="section-note">FIVE PATHS / ONE YOU</span>
+            </div>
+            <div class="skill-tree" id="skill-tree"></div>
+        </section>
+
+        <section class="tasks-section" id="workouts" aria-labelledby="workouts-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">02 / TRAINING</p>
+                    <h2 id="workouts-title">WORKOUT LOG <span class="heading-accent">_</span></h2>
+                </div>
+                <span class="section-note">UPPER / LOWER / CARDIO</span>
+            </div>
+
+            <div class="task-panel">
+                <fieldset class="workout-checks">
+                    <legend>TODAY'S WORKOUT</legend>
+                    <label class="task-label"><input class="workout-check" type="checkbox" value="Upper"><span class="task-title">Upper</span><span class="skill-tag">Strength</span></label>
+                    <label class="task-label"><input class="workout-check" type="checkbox" value="Lower"><span class="task-title">Lower</span><span class="skill-tag">Strength</span></label>
+                    <label class="task-label"><input class="workout-check" type="checkbox" value="Cardio"><span class="task-title">Cardio</span><span class="skill-tag">Agility</span></label>
+                </fieldset>
+                <p class="task-rules"><span>+100 XP</span> PER COMPLETED WORKOUT</p>
+                <h3 class="journal-history-title">WORKOUT HISTORY</h3>
+                <ul id="workout-list" class="task-list" aria-label="Workout history"></ul>
+            </div>
+        </section>
+
+        <section class="tasks-section" id="mental" aria-labelledby="mental-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">03 / DAILY LEARNING</p>
+                    <h2 id="mental-title">MENTAL TRAINING <span class="heading-accent">_</span></h2>
+                </div>
+                <span class="section-note">MENTAL / +100 XP PER DAY</span>
+            </div>
+            <div class="task-panel">
+                <div class="task-item">
+                    <label class="task-label" for="duolingo-check">
+                        <input id="duolingo-check" type="checkbox">
+                        <span class="task-title">Completed Duolingo today</span>
+                    </label>
+                    <time id="duolingo-date" class="task-date"></time>
+                </div>
+            </div>
+        </section>
+
+        <section class="tasks-section" id="logic" aria-labelledby="logic-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">04 / DAILY CHESS</p>
+                    <h2 id="logic-title">LOGIC TRAINING <span class="heading-accent">_</span></h2>
+                </div>
+                <span class="section-note">LOGIC / +100 OR +500 XP</span>
+            </div>
+            <div class="task-panel">
+                <div class="task-item">
+                    <label class="task-label" for="chess-check">
+                        <input id="chess-check" type="checkbox">
+                        <span class="task-title">Played a chess match today</span>
+                    </label>
+                    <time id="chess-date" class="task-date"></time>
+                </div>
+                <h3 class="journal-history-title">DAILY COURSEWORK</h3>
+                <form id="coursework-form">
+                    <div class="field">
+                        <label for="coursework-entry">WHAT COURSEWORK DID YOU DO?</label>
+                        <textarea id="coursework-entry" name="entry" rows="5" maxlength="4000" placeholder="Describe your coursework..." required></textarea>
+                    </div>
+                    <div class="journal-actions">
+                        <span class="journal-date">ENTRY DATE: <time id="coursework-date"></time> / <span id="coursework-count"></span></span>
+                        <button class="add-button" type="submit">SAVE COURSEWORK</button>
+                    </div>
+                    <p id="coursework-status" class="journal-status" role="status" aria-live="polite"></p>
+                </form>
+                <h3 class="journal-history-title">COURSEWORK HISTORY</h3>
+                <ul id="coursework-history" class="task-list journal-history" aria-label="Past coursework"></ul>
+                <h3 class="journal-history-title">COURSE COMPLETION / +500 XP</h3>
+                <form id="course-completion-form" class="task-form">
+                    <div class="field field-name">
+                        <label for="completed-course-name">COURSE NAME</label>
+                        <input id="completed-course-name" name="name" type="text" placeholder="Completed course" maxlength="120" required>
+                    </div>
+                    <button class="add-button" type="submit">LOG COMPLETION</button>
+                </form>
+                <p id="course-completion-status" class="journal-status" role="status" aria-live="polite"></p>
+                <ul id="course-completion-history" class="task-list" aria-label="Completed courses"></ul>
+                <h3 class="journal-history-title">WEEKLY ELO</h3>
+                <form id="elo-form" class="task-form">
+                    <div class="field field-name">
+                        <label for="elo-week">WEEK</label>
+                        <input id="elo-week" name="week" type="week" required>
+                    </div>
+                    <div class="field field-skill">
+                        <label for="elo-rating">ELO RATING</label>
+                        <input id="elo-rating" name="rating" type="number" min="0" step="1" placeholder="Your rating" required>
+                    </div>
+                    <button class="add-button" type="submit">SAVE RATING</button>
+                </form>
+                <p id="elo-status" class="journal-status" role="status" aria-live="polite"></p>
+                <h3 class="journal-history-title">RATING HISTORY</h3>
+                <ul id="elo-history" class="task-list" aria-label="Weekly ELO history"></ul>
+            </div>
+        </section>
+
+        <section class="tasks-section" id="charisma" aria-labelledby="charisma-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">05 / WEEKLY CONNECTION</p>
+                    <h2 id="charisma-title">CHARISMA <span class="heading-accent">_</span></h2>
+                </div>
+                <span class="section-note">CHARISMA / +100 XP EACH</span>
+            </div>
+            <div class="task-panel">
+                <fieldset class="workout-checks">
+                    <legend>THIS WEEK <span id="charisma-week"></span></legend>
+                    <label class="task-label"><input class="charisma-check" type="checkbox" value="flowers"><span class="task-title">Flowers for Soph</span></label>
+                    <label class="task-label"><input class="charisma-check" type="checkbox" value="date"><span class="task-title">Date with Soph</span></label>
+                </fieldset>
+            </div>
+        </section>
+
+        <section class="tasks-section" id="journal" aria-labelledby="journal-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">06 / DAILY REFLECTION</p>
+                    <h2 id="journal-title">JOURNAL <span class="heading-accent">_</span></h2>
+                </div>
+                <span class="section-note">CHARISMA / +100 XP PER DAY</span>
+            </div>
+            <div class="task-panel">
+                <form id="journal-form">
+                    <div class="field">
+                        <label for="journal-entry">WHAT IMPACTED YOUR DAY OR WHAT ARE YOU GRATEFUL FOR?</label>
+                        <textarea id="journal-entry" name="entry" rows="5" maxlength="4000" placeholder="Take a moment to reflect..." required></textarea>
+                    </div>
+                    <div class="journal-actions">
+                        <span class="journal-date">ENTRY DATE: <time id="journal-date"></time></span>
+                        <button class="add-button" type="submit">SAVE REFLECTION</button>
+                    </div>
+                    <p id="journal-status" class="journal-status" role="status" aria-live="polite"></p>
+                </form>
+                <h3 class="journal-history-title">PAST REFLECTIONS</h3>
+                <ul id="journal-history" class="task-list journal-history" aria-label="Past reflections"></ul>
+            </div>
+        </section>
+
+        <section class="tasks-section" id="tasks" aria-labelledby="tasks-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">07 / DAILY OBJECTIVES</p>
+                    <h2 id="tasks-title">TASK LOG <span class="heading-accent">_</span></h2>
+                </div>
+                <div class="task-counts">
+                    <span><strong id="open-count">0</strong> OPEN TODAY</span>
+                    <span><strong id="completed-count">0</strong> COMPLETED</span>
+                </div>
+            </div>
+
+            <div class="task-panel">
+                <form id="task-form" class="task-form">
+                    <div class="field field-name">
+                        <label for="task-name">NEW OBJECTIVE</label>
+                        <input id="task-name" name="name" type="text" placeholder="What are you working on?" maxlength="120" required>
+                    </div>
+                    <div class="field field-skill">
+                        <label for="task-skill">ASSIGN SKILL</label>
+                        <select id="task-skill" name="skill">
+                            <option>Strength</option>
+                            <option>Mental</option>
+                            <option>Agility</option>
+                            <option>Logic</option>
+                            <option>Charisma</option>
+                        </select>
+                    </div>
+                    <button class="add-button" type="submit"><span aria-hidden="true">+</span> ADD TASK</button>
+                </form>
+                <p class="task-rules"><span>+100 XP</span> COMPLETED <span class="rule-divider">/</span> <span class="penalty">-100 XP</span> MISSED AT MIDNIGHT</p>
+                <p id="storage-message" class="storage-message" role="alert" hidden>Tasks could not be saved in this browser. Changes may be lost when you leave.</p>
+                <ul id="task-list" class="task-list" aria-label="Tasks"></ul>
+            </div>
+        </section>
+        <footer class="footer"><span>LIFEQUEST / PERSONAL SYSTEM</span><span>KEEP SHOWING UP.</span></footer>
+    </main>
+</body>
+</html>
